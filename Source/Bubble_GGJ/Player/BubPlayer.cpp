@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 #include <Engine/DecalActor.h>
 #include "BubPlayerController.h"
+#include "GameFramework/PlayerState.h"
+#include "BubPlayerState.h"
 
 
 // Sets default values
@@ -48,9 +50,15 @@ void ABubPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	GetCharacterMovement()->SetGroundMovementMode(MOVE_Flying);
+	if (ABubPlayerState* playerState = Cast<ABubPlayerState>(UGameplayStatics::GetPlayerState(this, 0)))
+	{
+		JumpMaxCount = playerState->GetJumpCount();
+	}
+	
 
-	JumpMaxCount = 5;
-	JumpMaxHoldTime = 1.3;/*JumpMaxCount = 10;*/
+
+
+	JumpMaxHoldTime = .8f;/*JumpMaxCount = 10;*/
 	
 
 	BlobShadowActor = GetWorld()->SpawnActor<ADecalActor>(GetActorLocation(), FRotator(0, 0, 0));
@@ -103,6 +111,12 @@ void ABubPlayer::Tick(float DeltaTime)
 	//touched a floor
 	if (GetCharacterMovement()->IsMovingOnGround()) 
 	{
+		
+		if (ABubPlayerController* controller = Cast<ABubPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+		{
+			controller->D_OnGrounded.Broadcast();
+		}
+
 		GetCharacterMovement()->JumpZVelocity = MaxJumpZVelocity;
 
 		//Touching a new floor
@@ -118,6 +132,18 @@ void ABubPlayer::Tick(float DeltaTime)
 
 	
 	
+
+}
+
+void ABubPlayer::IncrementJumpCount(int increment)
+{
+
+	JumpMaxCount += increment;
+
+	if (ABubPlayerState* playerState = Cast<ABubPlayerState>(UGameplayStatics::GetPlayerState(this, 0)))
+	{
+		playerState->UpdateJumpCount(JumpMaxCount);
+	}
 
 }
 

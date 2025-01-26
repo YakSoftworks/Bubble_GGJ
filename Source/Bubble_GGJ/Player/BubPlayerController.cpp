@@ -4,6 +4,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "BubPlayer.h"
 #include "InputActionValue.h"
+#include "Bubble_GGJ/UI/BubPlayerUI.h"
+#include "Kismet/GameplayStatics.h"
+#include "Bubble_GGJ/World/BubGameModeBase.h"
 
 
 
@@ -40,7 +43,11 @@ void ABubPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ABubPlayerController::JumpEvent);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ABubPlayerController::StopJumpingEvent);
 
+		//Look
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABubPlayerController::LookEvent);
+
+		//Pause
+		EnhancedInputComponent->BindAction(TogglePauseAction, ETriggerEvent::Started, this, &ABubPlayerController::TogglePauseEvent);
 
 	}
 
@@ -110,5 +117,26 @@ void ABubPlayerController::LookEvent(const FInputActionValue& value)
 
 	ControlRotation.Yaw += (LookInput.X*HorizontalLookSpeed);
 	ControlRotation.Pitch += (LookInput.Y*VerticalLookSpeed);
+
+}
+
+void ABubPlayerController::TogglePauseEvent(const FInputActionValue& value)
+{
+	if (ABubGameModeBase* GM = Cast<ABubGameModeBase>(UGameplayStatics::GetGameMode(this)))
+
+	{
+		GM->TogglePause();
+	}
+
+}
+
+void ABubPlayerController::BeginPlay()
+{
+
+
+	Super::BeginPlay();
+	PlayerUI = CreateWidget<UUserWidget>(this, PlayerUIClass);
+	PlayerUI->AddToViewport();
+	UE_LOG(LogTemp, Warning, TEXT("Player UI Created"));
 
 }
