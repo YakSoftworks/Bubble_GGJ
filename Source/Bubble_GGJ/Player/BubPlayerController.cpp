@@ -132,11 +132,28 @@ void ABubPlayerController::TogglePauseEvent(const FInputActionValue& value)
 
 void ABubPlayerController::BeginPlay()
 {
-
-
 	Super::BeginPlay();
 	PlayerUI = CreateWidget<UUserWidget>(this, PlayerUIClass);
 	PlayerUI->AddToViewport();
 	UE_LOG(LogTemp, Warning, TEXT("Player UI Created"));
 
+	if (ABubGameModeBase* GM = Cast<ABubGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	{
+		GM->OnPause.AddDynamic(this, &ABubPlayerController::OnPause);
+		GM->OnResume.AddDynamic(this, &ABubPlayerController::OnResume);
+	}
+
+	OnResume();
+}
+
+void ABubPlayerController::OnPause()
+{
+	SetInputMode(FInputModeUIOnly());
+	bShowMouseCursor = true;
+}
+
+void ABubPlayerController::OnResume()
+{
+	SetInputMode(FInputModeGameOnly());
+	bShowMouseCursor = false;
 }

@@ -93,6 +93,12 @@ protected:
 
 	void BeginPlay() override;
 
+	UFUNCTION()
+	void OnPause();
+
+	UFUNCTION()
+	void OnResume();
+
 #pragma endregion
 
 };

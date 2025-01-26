@@ -3,6 +3,7 @@
 
 #include "BubGameModeBase.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 ABubGameModeBase::ABubGameModeBase()
 {
@@ -29,6 +30,8 @@ void ABubGameModeBase::PauseGame()
 		PauseMenuWidget = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidgetClass);
 	}
 	PauseMenuWidget->AddToViewport();
+
+	UGameplayStatics::SetGamePaused(this, true);
 	
 
 }
@@ -43,6 +46,8 @@ void ABubGameModeBase::ResumeGame()
 	{
 		PauseMenuWidget->RemoveFromParent();
 	}
+
+	UGameplayStatics::SetGamePaused(this, false);
 	
 }
 
@@ -55,8 +60,8 @@ void ABubGameModeBase::TogglePause()
 	else
 	{
 		PauseGame();
+		
 	}
-	bIsPaused = !bIsPaused;
 }
 
 void ABubGameModeBase::EndLevel()
